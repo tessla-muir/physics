@@ -80,18 +80,19 @@ public class OrientedBoundingBox : MonoBehaviour
             corners[i] = transformMatrix.MultiplyPoint3x4(corners[i]);
         }
 
-        // Draw the box
+        // Draw the box edges
         Gizmos.color = Color.blue;
-        for (int i = 0; i < 4; i++)
-        {
-            int nextIndex = (i + 1) % 4;
-            Gizmos.DrawLine(corners[i], corners[nextIndex]);
-
-            int nextIndex2 = i + 4;
-            int nextIndex2Next = (i + 1) % 4 + 4;
-            Gizmos.DrawLine(corners[nextIndex2], corners[nextIndex2Next]);
-
-            Gizmos.DrawLine(corners[i], corners[nextIndex2]);
-        }
+        Gizmos.DrawLine(corners[0], corners[1]);
+        Gizmos.DrawLine(corners[1], corners[3]);
+        Gizmos.DrawLine(corners[3], corners[2]);
+        Gizmos.DrawLine(corners[2], corners[0]);
+        Gizmos.DrawLine(corners[4], corners[5]);
+        Gizmos.DrawLine(corners[5], corners[7]);
+        Gizmos.DrawLine(corners[7], corners[6]);
+        Gizmos.DrawLine(corners[6], corners[4]);
+        Gizmos.DrawLine(corners[0], corners[4]);
+        Gizmos.DrawLine(corners[1], corners[5]);
+        Gizmos.DrawLine(corners[2], corners[6]);
+        Gizmos.DrawLine(corners[3], corners[7]);
     }
 }
