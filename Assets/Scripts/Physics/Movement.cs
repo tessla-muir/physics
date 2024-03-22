@@ -21,12 +21,12 @@ public class Movement : MonoBehaviour
         // Rotate Left
         if (Input.GetKey(KeyCode.A))
         {
-            playerOBB.RotateOBB(Quaternion.Euler(0, -rotationSpeed, 0));
+            playerOBB.RotateOBB(new Vector3(0, -rotationSpeed, 0));
         }
         // Rotate Right
         else if (Input.GetKey(KeyCode.D))
         {
-            playerOBB.RotateOBB(Quaternion.Euler(0, rotationSpeed, 0));
+            playerOBB.RotateOBB(new Vector3(0, rotationSpeed, 0));
         }
 
         // Calculate movement direction based on current rotation

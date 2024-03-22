@@ -6,11 +6,10 @@ public class OBB_Object : MonoBehaviour
 {
     public OBB obb;
 
-    // This method is called in the editor whenever the script's properties are modified in the Inspector
-    void OnValidate()
-    {
-        CalculateOBB();
-    }
+    // Momentum stuff
+    private float mass = 1.1f;
+    private Vector3 momentum;
+    private Vector3 angularMomentum;
 
     void Start()
     {
@@ -28,14 +27,26 @@ public class OBB_Object : MonoBehaviour
 
     public void TranslateOBB(Vector3 translation)
     {
-        obb.center += translation;
-        gameObject.transform.position = obb.center;
+        momentum += translation / mass;
     }
 
-    public void RotateOBB(Quaternion rotationDelta)
+    public void RotateOBB(Vector3 angularVelocity)
     {
-        obb.rotation *= rotationDelta;
+        angularMomentum += angularVelocity / mass;
+    }
+
+    void LateUpdate()
+    {
+        // Postion update through momentum and time
+        obb.center += momentum * Time.fixedDeltaTime;
+        gameObject.transform.position = obb.center;
+
+        // Rotation update through angular momentum and time
+        obb.rotation *= Quaternion.Euler(angularMomentum * Time.fixedDeltaTime);
         gameObject.transform.rotation = obb.rotation;
+
+        momentum *= 0.99f;
+        angularMomentum *= 0.99f;
     }
 
     void OnDrawGizmos()
