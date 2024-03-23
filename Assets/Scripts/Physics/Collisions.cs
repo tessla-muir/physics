@@ -4,6 +4,7 @@ using UnityEngine;
 
 public static class Collisions
 {
+    // Determines if two obbs are colliding
     public static bool AreColliding(OBB obb1, OBB obb2)
     {
         // Get corners
@@ -63,5 +64,61 @@ public static class Collisions
         float totalSize = Mathf.Max(max1 - min1, max2 - min2);
 
         return distance <= totalSize;
+    }
+
+    public static void HandleCollision(OBB_Object o1, OBB_Object o2)
+    {   
+        Vector3 distanceVector = CalculateDistanceVector(o1.obb, o2.obb);
+
+        // Move them apart
+        o1.TranslateOBB(distanceVector / 2f);
+        o2.TranslateOBB(-distanceVector / 2f);
+
+        // Momentums & Velocities
+        Vector3 velocity1 = o1.momentum / o1.mass;
+        Vector3 velocity2 = o2.momentum / o2.mass;
+        Vector3 relativeVelocity = velocity1 - velocity2;
+
+        // Impulse
+        Vector3 normal = (o1.obb.center - o2.obb.center).normalized;
+        float relativeOnNormal = Vector3.Dot(relativeVelocity, normal);
+        float impulse = -(1 + 0.8f) * relativeOnNormal / (o1.mass + o2.mass);
+
+        Debug.Log(normal * impulse);
+        o1.ImpulseOBB(normal * impulse);
+        o2.ImpulseOBB(normal * impulse);
+    }
+
+    // Find the vector needed to move two colliding OBBs apart
+    private static Vector3 CalculateDistanceVector(OBB obb1, OBB obb2)
+    {
+        Vector3 direction = obb1.center - obb2.center;
+
+        float min1 = float.MaxValue;
+        float max1 = float.MinValue;
+        float min2 = float.MaxValue;
+        float max2 = float.MinValue;
+
+        Vector3[] corners1 = obb1.GetCorners();
+        Vector3[] corners2 = obb2.GetCorners();
+
+        foreach (Vector3 corner in corners1)
+        {
+            float projection = Vector3.Dot(corner - obb1.center, direction);
+            min1 = Mathf.Min(min1, projection);
+            max1 = Mathf.Max(max1, projection);
+        }
+
+        foreach (Vector3 corner in corners2)
+        {
+            float projection = Vector3.Dot(corner - obb2.center, direction);
+            min2 = Mathf.Min(min2, projection);
+            max2 = Mathf.Max(max2, projection);
+        }
+
+        float overlap = Mathf.Min(max1, max2) - Mathf.Max(min1, min2);
+        overlap = Mathf.Max(overlap, 0f);
+
+        return direction.normalized * overlap;
     }
 }

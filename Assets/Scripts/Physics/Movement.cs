@@ -56,7 +56,7 @@ public class Movement : MonoBehaviour
     {
         if (Collisions.AreColliding(playerOBB.obb, otherOBB.obb))
         {
-            Debug.Log("COLLISION!");
+            Collisions.HandleCollision(playerOBB, otherOBB);
         }
     }
 }
