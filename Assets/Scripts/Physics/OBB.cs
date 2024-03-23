@@ -15,6 +15,20 @@ public struct OBB
         this.size = size;
     }
 
+    public Vector3 GetAxis(int index)
+    {
+        // Get the local axis vectors of the OBB
+        Vector3[] localAxes = new Vector3[]
+        {
+            Vector3.right,
+            Vector3.up,
+            Vector3.forward
+        };
+
+        // Transform the local axis vector to world space
+        return rotation * localAxes[index];
+    }
+
     public Vector3[] GetCorners()
     {
         // Calculate the corner points of the OBB

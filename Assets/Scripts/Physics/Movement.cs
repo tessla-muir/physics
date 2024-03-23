@@ -6,8 +6,9 @@ public class Movement : MonoBehaviour
 {
     GameObject player;
     OBB_Object playerOBB;
+    [SerializeField] OBB_Object otherOBB;
     float movementSpeed = 0.008f;
-    float rotationSpeed = 0.25f;
+    float rotationSpeed = 0.15f;
 
     void Start()
     {
@@ -48,6 +49,14 @@ public class Movement : MonoBehaviour
         {
             movementDirection.Normalize();
             playerOBB.TranslateOBB(playerOBB.obb.rotation * movementDirection * movementSpeed);
+        }
+    }
+
+    void LateUpdate()
+    {
+        if (Collisions.AreColliding(playerOBB.obb, otherOBB.obb))
+        {
+            Debug.Log("COLLISION!");
         }
     }
 }
