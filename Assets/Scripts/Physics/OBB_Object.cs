@@ -35,9 +35,14 @@ public class OBB_Object : MonoBehaviour
         angularMomentum += angularVelocity / mass;
     }
 
-    public void ImpulseOBB(Vector3 impulse)
+    public void ApplyImpulse(Vector3 impulse)
     {
-        momentum += impulse / mass;
+        momentum += impulse;
+    }
+
+    public void ApplyAngularImpulse(Vector3 impulse)
+    {
+        angularMomentum += impulse;
     }
 
     void LateUpdate()

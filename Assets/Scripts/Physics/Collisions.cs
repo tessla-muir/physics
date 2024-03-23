@@ -66,27 +66,35 @@ public static class Collisions
         return distance <= totalSize;
     }
 
+    // Handles collision between two OBBs
     public static void HandleCollision(OBB_Object o1, OBB_Object o2)
     {   
         Vector3 distanceVector = CalculateDistanceVector(o1.obb, o2.obb);
 
-        // Move them apart
+        // Move them apart -- position correction
         o1.TranslateOBB(distanceVector / 2f);
         o2.TranslateOBB(-distanceVector / 2f);
 
-        // Momentums & Velocities
-        Vector3 velocity1 = o1.momentum / o1.mass;
-        Vector3 velocity2 = o2.momentum / o2.mass;
-        Vector3 relativeVelocity = velocity1 - velocity2;
-
-        // Impulse
         Vector3 normal = (o1.obb.center - o2.obb.center).normalized;
-        float relativeOnNormal = Vector3.Dot(relativeVelocity, normal);
-        float impulse = -(1 + 0.8f) * relativeOnNormal / (o1.mass + o2.mass);
 
-        Debug.Log(normal * impulse);
-        o1.ImpulseOBB(normal * impulse);
-        o2.ImpulseOBB(normal * impulse);
+        // Translational Impulse
+        Vector3 relativeVelocity = (o1.momentum / o1.mass) - (o2.momentum / o2.mass);
+        float relativeOnNormal = Vector3.Dot(relativeVelocity, normal);
+        float impulse = (-(1 + 0.8f) * relativeOnNormal) / (o1.mass + o2.mass);
+
+        o1.ApplyImpulse(-normal * impulse);
+        o2.ApplyImpulse(normal * impulse);
+
+        // Rotational Impulse
+        Vector3 relativeAngularVelocity = (o1.angularMomentum / o1.mass) - (o2.angularMomentum / o2.mass);
+        Vector3 angularImpulse = -(1 + 0.8f) * relativeAngularVelocity;
+        o1.RotateOBB(-angularImpulse);
+        o2.RotateOBB(angularImpulse);
+        
+        // Torque
+        // Vector3 torque = Vector3.Cross(relativeAngularVelocity, normal);
+        // o1.ApplyAngularImpulse(-torque);
+        // o2.ApplyAngularImpulse(torque);
     }
 
     // Find the vector needed to move two colliding OBBs apart
