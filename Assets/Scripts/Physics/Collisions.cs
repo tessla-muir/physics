@@ -80,14 +80,14 @@ public static class Collisions
         // Translational Impulse
         Vector3 relativeVelocity = (o1.momentum / o1.mass) - (o2.momentum / o2.mass);
         float relativeOnNormal = Vector3.Dot(relativeVelocity, normal);
-        float impulse = (-(1 + 0.8f) * relativeOnNormal) / (o1.mass + o2.mass);
+        float impulse = (-(1 + 0.4f) * relativeOnNormal) / (o1.mass + o2.mass);
 
         o1.ApplyImpulse(-normal * impulse);
         o2.ApplyImpulse(normal * impulse);
 
         // Rotational Impulse
         Vector3 relativeAngularVelocity = (o1.angularMomentum / o1.mass) - (o2.angularMomentum / o2.mass);
-        Vector3 angularImpulse = -(1 + 0.8f) * relativeAngularVelocity;
+        Vector3 angularImpulse = -(1 + 0.4f) * relativeAngularVelocity;
         o1.RotateOBB(-angularImpulse);
         o2.RotateOBB(angularImpulse);
         
