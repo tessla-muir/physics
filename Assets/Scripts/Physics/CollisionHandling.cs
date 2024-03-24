@@ -15,18 +15,14 @@ public class CollisionHandling : MonoBehaviour
 
     void LateUpdate()
     {
-        foreach (OBB_Object obb in allObjects)
+        for (int i = 0; i < allObjects.Count; i++)
         {
-            foreach (OBB_Object otherOBB in allObjects)
+            for (int j = i + 1; j < allObjects.Count; j++)
             {
-                // Make sure they're not the same
-                if (obb.gameObject.name != otherOBB.gameObject.name)
+                // Check if they're colliding
+                if (Collisions.AreColliding(allObjects[i].obb, allObjects[j].obb))
                 {
-                    // See if they're colliding
-                    if (Collisions.AreColliding(obb.obb, otherOBB.obb))
-                    {
-                        Collisions.HandleCollision(obb, otherOBB);
-                    }
+                    Collisions.HandleCollision(allObjects[i], allObjects[j]);
                 }
             }
         }
