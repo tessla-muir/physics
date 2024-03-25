@@ -30,7 +30,7 @@ public class CollisionHandling : MonoBehaviour
                     else if (allObjects[j].gameObject.tag == "Wall" ^ allObjects[i].gameObject.tag == "Wall")
                     {
                         Collisions.HandleWallCollision(allObjects[i], allObjects[j]);
-                    } 
+                    }
                 }
             }
         }

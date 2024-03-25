@@ -69,15 +69,11 @@ public static class Collisions
     // Handles collision between two OBBs
     public static void HandleCollision(OBB_Object o1, OBB_Object o2)
     {
-        // Find the closest point on o2 to o1
-        Vector3 closestPointOnO2 = ClosestPointOnOBB(o2.obb, o1.transform.position);
-
-        // Calculate the normal from the contact point on o2 to o1
-        Vector3 pnormal = CalculateNormalFromContactPoint(o1, o2);
+        Vector3 distanceVector = CalculateDistanceVector(o1.obb, o2.obb);
 
         // Move them apart -- position correction
-        o1.TranslateOBB(pnormal / 2f);
-        o2.TranslateOBB(-pnormal / 2f);
+        o1.TranslateOBB(distanceVector / 2f);
+        o2.TranslateOBB(-distanceVector / 2f);
 
         Vector3 normal = (o1.obb.center - o2.obb.center).normalized;
 
@@ -94,7 +90,7 @@ public static class Collisions
         Vector3 angularImpulse = -(1 + 0.4f) * relativeAngularVelocity;
         o1.RotateOBB(-angularImpulse);
         o2.RotateOBB(angularImpulse);
-
+        
         // Torque
         // Vector3 torque = Vector3.Cross(relativeAngularVelocity, normal);
         // o1.ApplyAngularImpulse(-torque);
@@ -122,7 +118,7 @@ public static class Collisions
         Vector3 closestPointOnWall = ClosestPointOnOBB(wall.obb, obbObject.transform.position);
 
         // Calculate the normal from the contact point on the wall to the object
-        Vector3 wallNormal = CalculateNormalFromContactPoint2(obbObject, wall);
+        Vector3 wallNormal = CalculateNormalFromContactPoint(obbObject, wall);
 
         // Move the OBB away from the wall -- position correction
         obbObject.TranslateOBB(wallNormal / 2f);
@@ -174,18 +170,6 @@ public static class Collisions
     }
 
     private static Vector3 CalculateNormalFromContactPoint(OBB_Object obbObject, OBB_Object wall)
-    {
-        // Find the closest point on the wall to the object
-        Vector3 closestPointOnWall = ClosestPointOnOBB(wall.obb, obbObject.transform.position);
-
-        // Calculate the direction vector from the closest point on the wall to the object's center
-        Vector3 directionToCenter = obbObject.transform.position - closestPointOnWall;
-
-        // Normalize the direction vector to get the normal vector
-        return directionToCenter.normalized;
-    }
-
-    private static Vector3 CalculateNormalFromContactPoint2(OBB_Object obbObject, OBB_Object wall)
     {
         // Find the closest point on the wall's surface to the object
         Vector3 closestPointOnWall = ClosestPointOnOBB(wall.obb, obbObject.transform.position);
