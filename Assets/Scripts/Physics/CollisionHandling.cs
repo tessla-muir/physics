@@ -22,7 +22,15 @@ public class CollisionHandling : MonoBehaviour
                 // Check if they're colliding
                 if (Collisions.AreColliding(allObjects[i].obb, allObjects[j].obb))
                 {
-                    Collisions.HandleCollision(allObjects[i], allObjects[j]);
+                    // Normal collision
+                    if (allObjects[j].gameObject.tag != "Wall" && allObjects[i].gameObject.tag != "Wall")
+                    {
+                        Collisions.HandleCollision(allObjects[i], allObjects[j]);
+                    }
+                    else if (allObjects[j].gameObject.tag == "Wall" ^ allObjects[i].gameObject.tag == "Wall")
+                    {
+                        Collisions.HandleWallCollision(allObjects[i], allObjects[j]);
+                    } 
                 }
             }
         }

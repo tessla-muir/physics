@@ -68,12 +68,16 @@ public static class Collisions
 
     // Handles collision between two OBBs
     public static void HandleCollision(OBB_Object o1, OBB_Object o2)
-    {   
-        Vector3 distanceVector = CalculateDistanceVector(o1.obb, o2.obb);
+    {
+        // Find the closest point on o2 to o1
+        Vector3 closestPointOnO2 = ClosestPointOnOBB(o2.obb, o1.transform.position);
+
+        // Calculate the normal from the contact point on o2 to o1
+        Vector3 pnormal = CalculateNormalFromContactPoint(o1, o2);
 
         // Move them apart -- position correction
-        o1.TranslateOBB(distanceVector / 2f);
-        o2.TranslateOBB(-distanceVector / 2f);
+        o1.TranslateOBB(pnormal / 2f);
+        o2.TranslateOBB(-pnormal / 2f);
 
         Vector3 normal = (o1.obb.center - o2.obb.center).normalized;
 
@@ -90,14 +94,53 @@ public static class Collisions
         Vector3 angularImpulse = -(1 + 0.4f) * relativeAngularVelocity;
         o1.RotateOBB(-angularImpulse);
         o2.RotateOBB(angularImpulse);
-        
+
         // Torque
         // Vector3 torque = Vector3.Cross(relativeAngularVelocity, normal);
         // o1.ApplyAngularImpulse(-torque);
         // o2.ApplyAngularImpulse(torque);
     }
 
-    // Find the vector needed to move two colliding OBBs apart
+    public static void HandleWallCollision(OBB_Object obbObject1, OBB_Object obbObject2)
+    {
+        // Determine which is the wall
+        OBB_Object obbObject;
+        OBB_Object wall;
+
+        if (obbObject1.gameObject.tag == "Wall")
+        {
+            obbObject = obbObject2;
+            wall = obbObject1;
+        }
+        else
+        {
+            obbObject = obbObject1;
+            wall = obbObject2;
+        }
+
+        // Find the closest point on the wall to the object
+        Vector3 closestPointOnWall = ClosestPointOnOBB(wall.obb, obbObject.transform.position);
+
+        // Calculate the normal from the contact point on the wall to the object
+        Vector3 wallNormal = CalculateNormalFromContactPoint2(obbObject, wall);
+
+        // Move the OBB away from the wall -- position correction
+        obbObject.TranslateOBB(wallNormal / 2f);
+
+        // Translational Impulse
+        Vector3 relativeVelocity = obbObject.momentum; // Assuming the object has a velocity property
+        float relativeOnNormal = Vector3.Dot(relativeVelocity, wallNormal);
+        float impulse = (-(1 + 0.4f) * relativeOnNormal) / obbObject.mass;
+
+        obbObject.ApplyImpulse(-wallNormal * impulse);
+
+        // Rotational Impulse - assuming the wall does not impart angular velocity
+        Vector3 relativeAngularVelocity = obbObject.angularMomentum;
+        Vector3 angularImpulse = -(1 + 0.4f) * relativeAngularVelocity;
+        obbObject.RotateOBB(-angularImpulse);
+    }
+
+
     private static Vector3 CalculateDistanceVector(OBB obb1, OBB obb2)
     {
         Vector3 direction = obb1.center - obb2.center;
@@ -128,5 +171,58 @@ public static class Collisions
         overlap = Mathf.Max(overlap, 0f);
 
         return direction.normalized * overlap;
+    }
+
+    private static Vector3 CalculateNormalFromContactPoint(OBB_Object obbObject, OBB_Object wall)
+    {
+        // Find the closest point on the wall to the object
+        Vector3 closestPointOnWall = ClosestPointOnOBB(wall.obb, obbObject.transform.position);
+
+        // Calculate the direction vector from the closest point on the wall to the object's center
+        Vector3 directionToCenter = obbObject.transform.position - closestPointOnWall;
+
+        // Normalize the direction vector to get the normal vector
+        return directionToCenter.normalized;
+    }
+
+    private static Vector3 CalculateNormalFromContactPoint2(OBB_Object obbObject, OBB_Object wall)
+    {
+        // Find the closest point on the wall's surface to the object
+        Vector3 closestPointOnWall = ClosestPointOnOBB(wall.obb, obbObject.transform.position);
+
+        // Calculate the direction vector from the closest point on the wall to the object's center
+        Vector3 directionToCenter = obbObject.transform.position - closestPointOnWall;
+
+        // Calculate the normal vector based on the direction from the contact point to the object
+        Vector3 normal = directionToCenter.normalized;
+
+        // Rotate the normal according to the wall's rotation
+        normal = wall.transform.rotation * normal;
+
+        // Ensure that the normal points outward from the wall's surface
+        if (Vector3.Dot(normal, Vector3.up) < 0)
+        {
+            normal *= -1;
+        }
+
+        return normal;
+    }
+
+    private static Vector3 ClosestPointOnOBB(OBB obb, Vector3 point)
+    {
+        // Transform the given point into the local coordinate space of the OBB
+        Vector3 localPoint = Quaternion.Inverse(obb.rotation) * (point - obb.center);
+
+        // Clamp the transformed point to the extents of the OBB along each axis
+        Vector3 closestLocalPoint = Vector3.zero;
+        for (int i = 0; i < 3; i++)
+        {
+            float extent = Vector3.Dot(localPoint, obb.GetAxis(i));
+            extent = Mathf.Clamp(extent, -obb.size[i] / 2f, obb.size[i] / 2f);
+            closestLocalPoint += obb.GetAxis(i) * extent;
+        }
+
+        // Transform the closest point back into the world coordinate space
+        return obb.rotation * closestLocalPoint + obb.center;
     }
 }
