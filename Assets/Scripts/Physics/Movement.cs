@@ -7,7 +7,7 @@ public class Movement : MonoBehaviour
     GameObject player;
     OBB_Object playerOBB;
     float movementSpeed = 0.008f;
-    float rotationSpeed = 0.25f;
+    float rotationSpeed = 0.15f;
 
     void Start()
     {

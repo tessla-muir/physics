@@ -7,9 +7,9 @@ public class OBB_Object : MonoBehaviour
     public OBB obb;
 
     // Momentum stuff
-    private float mass = 1.1f;
-    private Vector3 momentum;
-    private Vector3 angularMomentum;
+    public float mass = 3.5f;
+    public Vector3 momentum;
+    public Vector3 angularMomentum;
 
     void Start()
     {
@@ -33,6 +33,16 @@ public class OBB_Object : MonoBehaviour
     public void RotateOBB(Vector3 angularVelocity)
     {
         angularMomentum += angularVelocity / mass;
+    }
+
+    public void ApplyImpulse(Vector3 impulse)
+    {
+        momentum += impulse;
+    }
+
+    public void ApplyAngularImpulse(Vector3 impulse)
+    {
+        angularMomentum += impulse;
     }
 
     void LateUpdate()
